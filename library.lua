@@ -1006,7 +1006,7 @@ function Library:CreateWindow(Title, Properties)
                                         ItemData.Hover = false              
                                     end)
         
-                                    Library.Connections[Dropdown.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
+                                    Library.Connections[Dropdown.Name..Item.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
                                         if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                                             if ItemData.Hover then
                                                 Dropdown:SetActive(ItemData)
@@ -1025,6 +1025,20 @@ function Library:CreateWindow(Title, Properties)
                                 return ItemData
                             end
                             
+                            function Dropdown:RemoveItem(Item)
+                                if not Library.Instances[Dropdown.Name.."Item"..Item] then 
+                                    return 
+                                end
+
+                                Library.Instances[Dropdown.Name.."Item"..Item]:Destroy()
+                                Library.Connections[Dropdown.Name..Item.."MouseEnter"]:Disconnect()
+                                Library.Connections[Dropdown.Name..Item.."MouseLeave"]:Disconnect()
+                                Library.Connections[Dropdown.Name..Item.."InputBegan"]:Disconnect()
+
+                                Dropdown:Resize()
+                                return ItemData
+                            end
+
                             for _, Item in next, Dropdown.Items  do
                                 Dropdown:AddItem(Item)
                             end
