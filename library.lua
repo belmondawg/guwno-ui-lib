@@ -20,6 +20,7 @@ end;
 
 function Library:CreateWindow(Title, Properties)
     local Window = {
+        Enabled = true,
         CurrentTab = nil,
         AccentColor = Properties.AccentColor,
         Size = Properties.Size,
@@ -279,9 +280,11 @@ function Library:CreateWindow(Title, Properties)
             end)
     
             Library.Connections[Tab.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    if Tab.Hover then
-                        Tab:Activate()
+                if Window.Enabled then 
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        if Tab.Hover then
+                            Tab:Activate()
+                        end
                     end
                 end
             end)
@@ -453,11 +456,12 @@ function Library:CreateWindow(Title, Properties)
                             end)
 
                             Library.Connections[Checkbox.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    if Checkbox.Hover then
-                                        Checkbox:Activate()
-                                        Checkbox.Changed()
+                                if Window.Enabled then 
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                        if Checkbox.Hover then
+                                            Checkbox:Activate()
+                                            Checkbox.Changed()
+                                        end
                                     end
                                 end
                             end)
@@ -628,26 +632,28 @@ function Library:CreateWindow(Title, Properties)
                         -- Connections
                         do                           
                             Library.Connections[Slider.Name.."SliderLogic"] = Library.Instances[Slider.Name.."InnerSliderBody"].InputBegan:Connect(function(Input, GameProcessed)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    local MPos = Mouse.X
-                                    local GPos = Library.Instances[Slider.Name.."SliderThumb"].Size.X.Offset
-                                    local Diff = MPos - (Library.Instances[Slider.Name.."SliderThumb"].AbsolutePosition.X + GPos)
+                                if Window.Enabled then 
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                        local MPos = Mouse.X
+                                        local GPos = Library.Instances[Slider.Name.."SliderThumb"].Size.X.Offset
+                                        local Diff = MPos - (Library.Instances[Slider.Name.."SliderThumb"].AbsolutePosition.X + GPos)
 
-                                    while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
-                                        local nMPos = Mouse.X
-                                        local nX = math.clamp(GPos + (nMPos - MPos) + Diff, 0, Slider.MaxSize)
-                                        local nValue = Slider:GetValueFromXOffset(nX)
-                                      
-                                        local OldValue = Slider.CurrentValue
-                                        Slider.CurrentValue = nValue
-                                 
-                                        Slider:Update()
-                                        if nValue ~= OldValue and Slider.Changed then
-                                            Slider.Changed()
+                                        while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                                            local nMPos = Mouse.X
+                                            local nX = math.clamp(GPos + (nMPos - MPos) + Diff, 0, Slider.MaxSize)
+                                            local nValue = Slider:GetValueFromXOffset(nX)
+                                        
+                                            local OldValue = Slider.CurrentValue
+                                            Slider.CurrentValue = nValue
+                                        
+                                            Slider:Update()
+                                            if nValue ~= OldValue and Slider.Changed then
+                                                Slider.Changed()
+                                            end
+                                            RunService.RenderStepped:Wait()
                                         end
-                                        RunService.RenderStepped:Wait()
-                                    end
 
+                                    end
                                 end
                             end)
                         end
@@ -733,9 +739,11 @@ function Library:CreateWindow(Title, Properties)
                             end)
 
                             Library.Connections[Button.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    if Button.Hover then
-                                        Callback()
+                                if Window.Enabled then 
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                        if Button.Hover then
+                                            Callback()
+                                        end
                                     end
                                 end
                             end)
@@ -1007,11 +1015,13 @@ function Library:CreateWindow(Title, Properties)
                                     end)
         
                                     Library.Connections[Dropdown.Name..Item.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
-                                        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                            if ItemData.Hover then
-                                                Dropdown:SetActive(ItemData)
-                                                Dropdown.Changed()
-                                                Dropdown:UpdateIndicator()
+                                        if Window.Enabled then 
+                                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                                if ItemData.Hover then
+                                                    Dropdown:SetActive(ItemData)
+                                                    Dropdown.Changed()
+                                                    Dropdown:UpdateIndicator()
+                                                end
                                             end
                                         end
                                     end)
@@ -1055,13 +1065,15 @@ function Library:CreateWindow(Title, Properties)
                             end)
 
                             Library.Connections[Dropdown.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
-                                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    if Dropdown.Hover then
-                                        Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible = not Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible
-                                        if Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible then 
-                                            Library.Instances[Dropdown.Name.."DropdownIndicator"].Text = "-"
-                                        else 
-                                            Library.Instances[Dropdown.Name.."DropdownIndicator"].Text = "+"
+                                if Window.Enabled then 
+                                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                        if Dropdown.Hover then
+                                            Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible = not Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible
+                                            if Library.Instances[Dropdown.Name.."DropdownMenuBody"].Visible then 
+                                                Library.Instances[Dropdown.Name.."DropdownIndicator"].Text = "-"
+                                            else 
+                                                Library.Instances[Dropdown.Name.."DropdownIndicator"].Text = "+"
+                                            end
                                         end
                                     end
                                 end
@@ -1095,6 +1107,7 @@ function Library:CreateWindow(Title, Properties)
         Library.Connections["MainInput"] = UserInputService.InputBegan:Connect(function(Input)
             -- Hide/Open
             if Input.KeyCode == Enum.KeyCode.Insert then
+                Window.Enabled = not Window.Enabled
                 Library.Instances["ScreenGui"].Enabled = not Library.Instances["ScreenGui"].Enabled
             end
 
