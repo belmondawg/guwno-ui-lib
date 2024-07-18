@@ -19,6 +19,7 @@ function Library:Create(Class, Properties)
 end;
 
 function Library:CreateWindow(Title, Properties)
+    print('Creating window...')
     local Window = {
         Enabled = true,
         CurrentTab = nil,
@@ -26,8 +27,9 @@ function Library:CreateWindow(Title, Properties)
         Size = Properties.Size,
         DragHover = false
     }
-
+    print(getgenv().Library)
     if getgenv().Library ~= nil then
+        print('Unloading...')
         getgenv().Library:Unload();
     end
 
@@ -404,7 +406,7 @@ function Library:CreateWindow(Title, Properties)
                                 BorderSizePixel = 0,
                             })
     
-                            Library:Create("UIStroke", {
+                            Library.Instances[Checkbox.Name.."CheckStroke"] = Library:Create("UIStroke", {
                                 Parent = Library.Instances[Checkbox.Name.."Check"],
                             })
     
@@ -449,10 +451,12 @@ function Library:CreateWindow(Title, Properties)
                         do                           
                             Library.Connections[Checkbox.Name.."MouseEnter"] = Library.Instances[Checkbox.Name.."Body"].MouseEnter:Connect(function()
                                 Checkbox.Hover = true
+                                Library.Instances[Checkbox.Name.."CheckStroke"].Color = Window.AccentColor
                             end)
 
                             Library.Connections[Checkbox.Name.."MouseLeave"] = Library.Instances[Checkbox.Name.."Body"].MouseLeave:Connect(function()
                                 Checkbox.Hover = false
+                                Library.Instances[Checkbox.Name.."CheckStroke"].Color = Color3.new(0, 0, 0)
                             end)
 
                             Library.Connections[Checkbox.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GameProcessed)
@@ -546,8 +550,8 @@ function Library:CreateWindow(Title, Properties)
                                 BorderSizePixel = 0,
                             })
                             
-                            Library:Create("UIStroke", {
-                                Parent =  Library.Instances[Slider.Name.."OuterSliderBody"],
+                            Library.Instances[Slider.Name.."SliderStroke"] = Library:Create("UIStroke", {
+                                Parent = Library.Instances[Slider.Name.."OuterSliderBody"],
                             })
 
                             Library.Instances[Slider.Name.."InnerSliderBody"] = Library:Create("Frame", {
@@ -651,11 +655,21 @@ function Library:CreateWindow(Title, Properties)
                                                 Slider.Changed()
                                             end
                                             RunService.RenderStepped:Wait()
+                                            Library.Instances[Slider.Name.."SliderStroke"].Color = Color3.new(0, 0, 0)
                                         end
-
+                                        Library.Instances[Slider.Name.."SliderStroke"].Color = Window.AccentColor
                                     end
                                 end
                             end)
+
+                            Library.Connections[Slider.Name.."MouseEnter"] = Library.Instances[Slider.Name.."Body"].MouseEnter:Connect(function()
+                                Library.Instances[Slider.Name.."SliderStroke"].Color = Window.AccentColor
+                            end)
+
+                            Library.Connections[Slider.Name.."MouseLeave"] = Library.Instances[Slider.Name.."Body"].MouseLeave:Connect(function()
+                                Library.Instances[Slider.Name.."SliderStroke"].Color = Color3.new(0, 0, 0)
+                            end)
+
                         end
 
                         Slider.CurrentValue = Slider.DefaultValue
@@ -808,7 +822,7 @@ function Library:CreateWindow(Title, Properties)
                                 BorderSizePixel = 0,
                             })
                             
-                            Library:Create("UIStroke", {
+                            Library.Instances[Dropdown.Name.."DropdownStroke"] = Library:Create("UIStroke", {
                                 Parent =  Library.Instances[Dropdown.Name.."OuterDropdownBody"],
                             })
 
@@ -1058,10 +1072,12 @@ function Library:CreateWindow(Title, Properties)
                         do
                             Library.Connections[Dropdown.Name.."MouseEnter"] = Library.Instances[Dropdown.Name.."OuterDropdownBody"].MouseEnter:Connect(function()
                                 Dropdown.Hover = true
+                                Library.Instances[Dropdown.Name.."DropdownStroke"].Color = Window.AccentColor
                             end)
 
                             Library.Connections[Dropdown.Name.."MouseLeave"] = Library.Instances[Dropdown.Name.."OuterDropdownBody"].MouseLeave:Connect(function()
-                                Dropdown.Hover = false              
+                                Dropdown.Hover = false     
+                                Library.Instances[Dropdown.Name.."DropdownStroke"].Color = Color3.new(0, 0, 0)      
                             end)
 
                             Library.Connections[Dropdown.Name.."InputBegan"] = UserInputService.InputBegan:Connect(function(Input, GPE)
@@ -1108,6 +1124,7 @@ function Library:CreateWindow(Title, Properties)
             -- Hide/Open
             if Input.KeyCode == Enum.KeyCode.Insert then
                 Window.Enabled = not Window.Enabled
+                print(Window.Enabled)
                 Library.Instances["ScreenGui"].Enabled = not Library.Instances["ScreenGui"].Enabled
             end
 
@@ -1121,7 +1138,7 @@ function Library:CreateWindow(Title, Properties)
                     Window.DragHover = false 
                 end)
 
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 and Window.DragHover then
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 and Window.DragHover and Window.Enabled then
                     local ObjPos =
                         Vector2.new(
                         Mouse.X - Library.Instances["MainFrame"].AbsolutePosition.X,
@@ -1149,15 +1166,23 @@ function Library:CreateWindow(Title, Properties)
 end
 
 function Library:Unload()
+    local Stats = {
+        Instances = 0,
+        Connections = 0
+    }
+    
     for _, _Instance in next, Library.Instances do 
         _Instance:Destroy()
+        Stats.Instances += 1
     end
 
     for _, Connection in next, Library.Connections do 
         Connection:Disconnect()
+        Stats.Connections += 1
     end
 
-    Library = nil;
+    print("Successfully destroyed "..Stats.Instances.." Instances and "..Stats.Connections.." Connections.")
+    Library = nil
 end
 
 return Library
